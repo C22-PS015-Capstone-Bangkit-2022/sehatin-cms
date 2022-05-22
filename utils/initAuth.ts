@@ -43,7 +43,7 @@ const initAuth = () => {
       path: "/",
       sameSite: "strict",
       secure: process.env.NEXT_PUBLIC_COOKIE_SECURE, // set this to false in local (non-HTTPS) development
-      signed: true,
+      signed: false,
     },
   });
 };
