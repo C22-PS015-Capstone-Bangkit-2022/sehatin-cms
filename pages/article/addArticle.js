@@ -10,6 +10,7 @@ import {
   Text
 } from "@chakra-ui/react";
 import FormData from 'form-data';
+import { useRouter } from 'next/router';
 
 
 const Form = () => {
@@ -39,6 +40,7 @@ const Form = () => {
       });
   };
 
+  let router = useRouter();
   let insert = () => {
     axios
     .post(`https://sehatin-api.herokuapp.com/v1/articles/new`,{
@@ -50,13 +52,13 @@ const Form = () => {
     })
     .then((res) => {
       console.log(res);
-      window.alert("data sukses");
-      window.location.reload()
+      router.push('/article/getArticle');
     })
     .catch((err) => {
       console.log(err);
     });
   }
+
   return (
     <FormControl>
       <Text fontSize='5xl' marginLeft={8} marginTop={5}>Input Article</Text>
