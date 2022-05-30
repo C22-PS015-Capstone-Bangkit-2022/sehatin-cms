@@ -1,18 +1,31 @@
 import { Menu, Transition } from "@headlessui/react";
-import { BellIcon, MenuAlt2Icon, QuestionMarkCircleIcon } from "@heroicons/react/outline";
+import {
+  BellIcon,
+  MenuAlt2Icon,
+  QuestionMarkCircleIcon,
+} from "@heroicons/react/outline";
 import clsx from "clsx";
 import { Fragment } from "react";
 import { useDashboardStore } from "~/lib/layout/dashboard/dashboard-store";
+import { AuthUserContext } from "next-firebase-auth";
 
-const userNavigation = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "#" },
-  { name: "Sign out", href: "#" },
-];
+interface Props {
+  user: AuthUserContext;
+}
 
-export function DashboardNav() {
-  const setSidebarOpen = useDashboardStore(state => state.setSidebarOpen);
-
+export function DashboardNav({ user }: Props) {
+  const setSidebarOpen = useDashboardStore((state) => state.setSidebarOpen);
+  const userNavigation = [
+    { name: "Your Profile", href: "#" },
+    { name: "Settings", href: "#" },
+    {
+      name: "Sign out",
+      href: "#",
+      onClick: async () => {
+        await user.signOut();
+      },
+    },
+  ];
   return (
     <div className="relative z-10 flex-shrink-0 flex h-16 bg-white shadow">
       <button
@@ -56,7 +69,7 @@ export function DashboardNav() {
               leaveTo="transform opacity-0 scale-95"
             >
               <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-                {userNavigation.map(item => (
+                {userNavigation.map((item) => (
                   <Menu.Item key={item.name}>
                     {({ active }) => (
                       <a

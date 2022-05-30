@@ -10,7 +10,7 @@ import { sidebarMenu } from "~/lib/layout/dashboard/sidebar-data";
 
 export function DashboardSidebar() {
   const router = useRouter();
-  const { sidebarOpen, setSidebarOpen } = useDashboardStore(state => state);
+  const { sidebarOpen, setSidebarOpen } = useDashboardStore((state) => state);
   const initialFocusItem = useRef(null);
 
   useEffect(() => {
@@ -84,11 +84,11 @@ export function DashboardSidebar() {
                   src="/images/kemenkes-app-icon@2x.png"
                   width={32}
                 />
-                <h1 className="ml-4 text-xl font-semibold">Silacak 3.0</h1>
+                <h1 className="ml-4 text-xl font-semibold">SehatIn CMS</h1>
               </div>
               <div className="mt-5 flex-1 h-0 overflow-y-auto">
                 <nav className="px-2 space-y-1">
-                  {sidebarMenu.map(item => {
+                  {sidebarMenu.map((item) => {
                     const isActive = item.exact
                       ? item.href === router.asPath
                       : router.asPath.startsWith(item.href);
@@ -140,11 +140,11 @@ export function DashboardSidebar() {
                 src="/images/kemenkes-app-icon@2x.png"
                 width={32}
               />
-              <h1 className="ml-4 text-xl font-semibold">Silacak 3.0</h1>
+              <h1 className="ml-4 text-xl font-semibold">SehatIn CMS</h1>
             </div>
             <div className="flex-1 flex flex-col overflow-y-auto">
               <nav className="flex-1 px-2 py-4 bg-gray-800 space-y-1">
-                {sidebarMenu.map(item => {
+                {sidebarMenu.map((item) => {
                   const isActive = item.exact
                     ? item.href === router.asPath
                     : router.asPath.startsWith(item.href);
@@ -162,7 +162,9 @@ export function DashboardSidebar() {
                         <item.icon
                           aria-hidden="true"
                           className={clsx(
-                            isActive ? "text-gray-300" : "text-gray-400 group-hover:text-gray-300",
+                            isActive
+                              ? "text-gray-300"
+                              : "text-gray-400 group-hover:text-gray-300",
                             "mr-3 flex-shrink-0 h-6 w-6"
                           )}
                         />

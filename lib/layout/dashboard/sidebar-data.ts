@@ -10,13 +10,13 @@ export interface SidebarMenuItem {
 
 export const sidebarMenu: SidebarMenuItem[] = [
   {
-    name: "Daftar Tracing",
-    href: "/dashboard/tracing",
+    name: "Fitur Utama",
+    href: "/dashboard/notready",
     icon: ViewGridIcon,
   },
   {
-    name: "Daftar Pemantauan",
-    href: "/dashboard/monitoring",
+    name: "Tes API",
+    href: "/test/api",
     icon: ShieldCheckIcon,
   },
 ];
