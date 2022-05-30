@@ -3,7 +3,10 @@ import { DashboardMain } from "./dashboard-main";
 import { DashboardRoot } from "./dashboard-root";
 import { DashboardSidebar } from "./dashboard-sidebar";
 
-export const DashboardPage: React.FC = ({ children }) => {
+type Props = {
+  children?: React.ReactNode;
+};
+export const DashboardPage: React.FC<Props> = ({ children }) => {
   return (
     <DashboardRoot>
       <DashboardSidebar />
