@@ -78,6 +78,7 @@ export function DashboardNav({ user }: Props) {
                           "block px-4 py-2 text-sm text-gray-700"
                         )}
                         href={item.href}
+                        onClick={item.onClick}
                       >
                         {item.name}
                       </a>
