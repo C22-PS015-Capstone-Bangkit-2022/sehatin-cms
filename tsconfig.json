@@ -51,7 +51,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "pages/article/editArticle/[id_artikel].js"  ],
   "exclude": [
     "node_modules",
     ".next",

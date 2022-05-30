@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Box, Text, Badge, Image, Grid, Stack, Button } from "@chakra-ui/react";
+import { Box, Text, Badge, Image, Grid, Stack, Button, useDisclosure } from "@chakra-ui/react";
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
 import { base_url } from "@/utils/const";
+import AlertDialogDelete from "../../components/alert-dialog/alertDialog"
 
 const ListArticle = () => {
   const [dataArticle, setDataArticle] = useState([]);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     axios
@@ -22,13 +24,35 @@ const ListArticle = () => {
   let router = useRouter();
   let selectArticle = (id_artikel) => {
     router.push({
-      pathname: "/article/getArticleById/[id_artikel]",
+      pathname: "/article/[id_artikel]",
       query: {
         id_artikel: id_artikel,
       },
     });
     // console.log(id_artikel);
   };
+
+  let editArticle = (id_artikel) => {
+    router.push({
+      pathname: "/article/editArticle/[id_artikel]",
+      query: {
+        id_artikel: id_artikel,
+      },
+    });
+  }
+
+  let deleteArticle = (id_artikel) => {
+    axios.delete(`${base_url}v1/articles/delete/${id_artikel}`)
+    .then((res) => {
+      console.log(res);
+      window.location.reload()
+    })
+    .catch((err) => {
+      alert('error');
+      console.log(err);
+    })
+  } 
+
   return (
     <div>
       <Text fontSize="5xl" marginLeft={8} marginTop={5}>
@@ -44,8 +68,6 @@ const ListArticle = () => {
               borderWidth="1px"
               borderRadius="lg"
               overflow="hidden"
-              cursor="pointer"
-              onClick={() => selectArticle(v.id_artikel)}
             >
               <Image
                 src={v.thumbnail_image}
@@ -54,7 +76,7 @@ const ListArticle = () => {
                 height="300"
                 margin="auto"
               />
-              <Box p="6">
+              <Box p="6" cursor="pointer" onClick={() => selectArticle(v.id_artikel)}>
                 <Box display="flex" alignItems="baseline">
                   <Stack direction="row">
                     {v &&
@@ -88,7 +110,7 @@ const ListArticle = () => {
                     fontSize="sm"
                     noOfLines={2}
                   >
-                    {v.source}
+                    {v.source_link}
                   </Box>
                 </Box>
               </Box>
@@ -99,12 +121,13 @@ const ListArticle = () => {
                 position="relative"
               >
                 <Button>
-                  <DeleteIcon color="blue.300" />
+                  <DeleteIcon color="blue.300" onClick={onOpen}/>
                 </Button>
-                <Button>
+                <Button onClick={() => editArticle(v.id_artikel)}>
                   <EditIcon color="blue.300" />
                 </Button>
               </Stack>
+              <AlertDialogDelete isOpen={isOpen} onClose={onClose} onClick={() => deleteArticle(v.id_artikel)} />
             </Box>
           );
         })}

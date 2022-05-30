@@ -14,13 +14,45 @@ import { useRouter } from "next/router";
 import { base_url } from "@/utils/const";
 
 const Form = () => {
+  const [dataArticle, setDataArticle] = useState([]);
   const [judul, setJudul] = useState("");
   const [isi, setIsi] = useState("");
-  const [file, setFile] = useState<any>([]);
+  const [file, setFile] = useState([]);
   const [source, setSource] = useState("");
   const [tag, setTag] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const formData = new FormData();
+  const router = useRouter();
+  const { id_artikel } = router.query;
+
+  useEffect(() => {
+    axios
+      .get(`${base_url}v1/articles/${id_artikel}`)
+      .then((res) => {
+        setDataArticle(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [id_artikel]);
+
+  
+  useEffect(() => {
+      setJudul(dataArticle.judul)
+  }, [dataArticle.judul])
+
+  useEffect(() => {
+    setIsi(dataArticle.isi_artikel)
+  }, [dataArticle.isi_artikel])
+
+  useEffect(() => {
+  setSource(dataArticle.source_link)
+  }, [dataArticle.source_link])
+
+  useEffect(() => {
+  setTag(dataArticle.tag)
+  }, [dataArticle.tag])
+
 
   const onFileChange = (event) => {
     setIsLoading(true);
@@ -38,15 +70,15 @@ const Form = () => {
         console.log(err);
       });
   };
-
-  let router = useRouter();
-  let insert = () => {
+  
+ 
+  let edit = () => {
     axios
-      .post(`https://sehatin-api.herokuapp.com/v1/articles/new`, {
+      .put(`${base_url}v1/articles/edit/${id_artikel}`, {
         judul: judul,
         isi_artikel: isi,
         thumbnail_image: file.image,
-        source_link: source,
+        source: source,
         tag: tag.includes(",") ? tag.split(",") : Array(tag),
       })
       .then((res) => {
@@ -61,7 +93,7 @@ const Form = () => {
   return (
     <FormControl>
       <Text fontSize="5xl" marginLeft={8} marginTop={5}>
-        Input Article
+        Edit Article
       </Text>
       <Box margin={8}>
         <FormLabel htmlFor="judul artikel">Judul Artikel</FormLabel>
@@ -110,7 +142,7 @@ const Form = () => {
           onChange={(event) => setTag(event.target.value)}
         />
       </Box>
-      <Button colorScheme="blue" onClick={insert} marginLeft={8}>
+      <Button colorScheme="blue" onClick={edit} marginLeft={8}>
         Button
       </Button>
     </FormControl>

@@ -8,19 +8,22 @@ import {
   Button,
   Spacer,
   Link,
+  useDisclosure
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { base_url } from "@/utils/const";
+import AlertDialogDelete from "@/components/alert-dialog/alertDialog";
 
 const GetArticleById = () => {
   const [dataArticle, setDataArticle] = useState([]);
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const router = useRouter();
   const { id_artikel } = router.query;
 
   console.log(id_artikel);
   useEffect(() => {
     axios
-      .get(`${base_url}/v1/articles/${id_artikel}`)
+      .get(`${base_url}v1/articles/${id_artikel}`)
       .then((res) => {
         setDataArticle(new Array(res.data));
       })
@@ -28,6 +31,27 @@ const GetArticleById = () => {
         console.log(err);
       });
   }, [id_artikel]);
+
+  let selectArticle = (id_artikel) => {
+    router.push({
+      pathname: "/article/editArticle/[id_artikel]",
+      query: {
+        id_artikel: id_artikel,
+      },
+    });
+  }
+
+  let deleteArticle = (id_artikel) => {
+    axios.delete(`${base_url}v1/articles/delete/${id_artikel}`)
+    .then((res) => {
+      console.log(res);
+      router.push("/article/getArticle")
+    })
+    .catch((err) => {
+      alert('error');
+      console.log(err);
+    })
+  } 
 
   return (
     <Box
@@ -58,17 +82,18 @@ const GetArticleById = () => {
                 <Spacer />
                 <Stack direction="row">
                   <Box>
-                    <Button colorScheme="teal" size="sm" marginTop={5}>
+                    <Button colorScheme="teal" size="sm" marginTop={5} onClick={() => selectArticle(v.id_artikel)}>
                       edit
                     </Button>
                   </Box>
                   <Box>
-                    <Button colorScheme="teal" size="sm" marginTop={5}>
+                    <Button colorScheme="teal" size="sm" marginTop={5} onClick={onOpen}>
                       delete
                     </Button>
                   </Box>
                 </Stack>
               </Stack>
+              <AlertDialogDelete isOpen={isOpen} onClose={onClose} onClick={() => deleteArticle(v.id_artikel)} />
               <Box>
                 <Text lineHeight={8} textAlign="justify">
                   {v.isi_artikel}
@@ -85,7 +110,7 @@ const GetArticleById = () => {
               <Box marginBottom="30px">
                 Source : &nbsp;
                 <Link color="teal.500" href="#">
-                  {v.source}
+                  {v.source_link}
                 </Link>
               </Box>
             </Box>
