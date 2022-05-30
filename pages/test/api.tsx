@@ -68,6 +68,7 @@ function ApiTest() {
             },
           })
           .then((res) => {
+            alert("Lihat hasil di console log!");
             console.log(res.data);
           })
           .catch((error) => {
