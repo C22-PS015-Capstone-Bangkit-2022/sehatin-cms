@@ -14,6 +14,9 @@ import { DeleteIcon, EditIcon, AddIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
 import { base_url } from "@/utils/const";
 import AlertDialogDelete from "../../components/alert-dialog/alertDialog";
+import Loading from "@/components/Loading";
+import { AuthAction, withAuthUser } from "next-firebase-auth";
+const Loader = () => <Loading />;
 
 const ListArticle = () => {
   const [dataArticle, setDataArticle] = useState([]);
@@ -164,4 +167,8 @@ const ListArticle = () => {
   );
 };
 
-export default ListArticle;
+
+export default withAuthUser({
+  whenUnauthedAfterInit: AuthAction.REDIRECT_TO_LOGIN,
+  LoaderComponent: Loader,
+})(ListArticle);

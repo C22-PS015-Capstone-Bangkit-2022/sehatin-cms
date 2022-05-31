@@ -13,7 +13,7 @@ import FormData from "form-data";
 import { useRouter } from "next/router";
 import { base_url } from "@/utils/const";
 import { DashboardHeader } from "@/components/layout/header/dashboard-header";
-import { useAuthUser } from "next-firebase-auth";
+import { AuthAction, useAuthUser, withAuthUser } from "next-firebase-auth";
 import {
   DashboardPage,
   DashboardPageContent,
@@ -23,10 +23,13 @@ import "easymde/dist/easymde.min.css";
 import ReactMarkdown from "react-markdown";
 import raw from "rehype-raw";
 import dynamic from "next/dynamic";
+import { DashboardIndex } from "@/pages/dashboard";
+import Loading from "@/components/Loading";
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
   loading: () => <FetchLoading />,
 });
+const Loader = () => <Loading />;
 
 const Form = () => {
   const [judul, setJudul] = useState("");
@@ -147,4 +150,8 @@ const Form = () => {
   );
 };
 
-export default Form;
+
+export default withAuthUser({
+  whenUnauthedAfterInit: AuthAction.REDIRECT_TO_LOGIN,
+  LoaderComponent: Loader,
+})(Form);

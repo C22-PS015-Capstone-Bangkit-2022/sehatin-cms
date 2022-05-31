@@ -13,6 +13,9 @@ import {
 import { useRouter } from "next/router";
 import { base_url } from "@/utils/const";
 import AlertDialogDelete from "@/components/alert-dialog/alertDialog";
+import { AuthAction, withAuthUser } from "next-firebase-auth";
+import Loading from "@/components/Loading";
+const Loader = () => <Loading />;
 
 const GetArticleById = () => {
   const [dataArticle, setDataArticle] = useState([]);
@@ -51,7 +54,7 @@ const GetArticleById = () => {
       alert('error');
       console.log(err);
     })
-  } 
+  }
 
   return (
     <Box
@@ -121,4 +124,8 @@ const GetArticleById = () => {
   );
 };
 
-export default GetArticleById;
+
+export default withAuthUser({
+  whenUnauthedAfterInit: AuthAction.REDIRECT_TO_LOGIN,
+  LoaderComponent: Loader,
+})(GetArticleById);
