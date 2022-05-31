@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+//Editor
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
 import axios from "axios";
 import {
   FormControl,
@@ -8,6 +11,9 @@ import {
   Box,
   Button,
   Text,
+  FormErrorMessage,
+  useToast,
+  InputGroup,
 } from "@chakra-ui/react";
 import FormData from "form-data";
 import { useRouter } from "next/router";
@@ -23,8 +29,10 @@ import "easymde/dist/easymde.min.css";
 import ReactMarkdown from "react-markdown";
 import raw from "rehype-raw";
 import dynamic from "next/dynamic";
-import { DashboardIndex } from "@/pages/dashboard";
+import ReactDOMServer from "react-dom/server";
 import Loading from "@/components/Loading";
+import { useForm, Controller } from "react-hook-form";
+import Select from "react-select";
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
   loading: () => <FetchLoading />,
@@ -39,9 +47,17 @@ const Form = () => {
   const [tag, setTag] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const AuthUser = useAuthUser();
-  const formData = new FormData();
+  const toast = useToast();
+  const {
+    register,
+    watch,
+    formState: { errors, isSubmitting },
+    control,
+    handleSubmit,
+  } = useForm();
 
   const onFileChange = (event) => {
+    const formData = new FormData();
     setIsLoading(true);
     const url = `${base_url}v1/upload`; //kalo pake heroku malah error : file is required
     formData.append("file", event.target.files[0]);
@@ -76,7 +92,50 @@ const Form = () => {
         console.log(err);
       });
   };
+  function easyMdeUpload(file, onSuccess, onError) {
+    const form = new FormData();
+    form.append("file", file);
+    axios
+      .post(`${base_url}v1/upload`, form)
+      .then((response) => {
+        toast({
+          title: "Gambar Terunggah",
+          description: "Gambar berhasil diunggah",
+          status: "success",
+          duration: 4000,
+          isClosable: true,
+          position: "top-right",
+        });
+        return onSuccess(response.data.image);
+      })
+      .catch((error) => {
+        return onError(error.message + " : " + error.response.error);
+      });
+  }
 
+  const customRendererOptions = useMemo(() => {
+    return {
+      sideBySideFullscreen: false,
+      uploadImage: true,
+      spellChecker: false,
+      imageAccept: "image/png, image/jpeg",
+      previewImagesInEditor: true,
+      minHeight: "100px",
+      imageUploadFunction: (file, onSuccess, onError) => {
+        console.log(file.file);
+        easyMdeUpload(file, onSuccess, onError);
+      },
+      previewRender(plainText) {
+        return ReactDOMServer.renderToString(
+          <article className="prose lg:prose-lg text-justify py-3">
+            <ReactMarkdown children={plainText} rehypePlugins={[raw]} />
+          </article>
+        );
+      },
+    };
+  }, []);
+
+  const onSubmit = async (data) => {};
   return (
     <DashboardPage user={AuthUser}>
       <DashboardHeader>
@@ -90,66 +149,77 @@ const Form = () => {
         </div>
       </DashboardHeader>
       <DashboardPageContent className="z-50">
-        <FormControl>
-          <Text fontSize="5xl" marginLeft={8} marginTop={5}>
-            Input Article
-          </Text>
-          <Box margin={8}>
-            <FormLabel htmlFor="judul artikel">Judul Artikel</FormLabel>
-            <Input
-              id="judul"
-              type="text"
-              htmlSize={100}
-              width="auto"
-              onChange={(event) => setJudul(event.target.value)}
-              value={judul}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-6">
+            <InputGroup>
+              <FormControl isInvalid={errors.title}>
+                <FormLabel htmlFor="name">Judul Artikel</FormLabel>
+                <Input
+                  id="title"
+                  bg="white"
+                  type="text"
+                  {...register("title", {
+                    required: "This is required",
+                  })}
+                />
+                <FormErrorMessage>
+                  {errors.title && errors.title.message}
+                </FormErrorMessage>
+              </FormControl>
+            </InputGroup>
+            <FormLabel htmlFor="isi artikel">Isi Artikel</FormLabel>
+            <Controller
+              name="article"
+              control={control}
+              rules={{ required: true }}
+              defaultValue=""
+              render={({ field }) => (
+                <SimpleMDE {...field} options={customRendererOptions} />
+              )}
             />
-          </Box>
-          <Box margin={8}>
-            <FormLabel htmlFor="isi artikel">isi Artikel</FormLabel>
-            <Textarea
-              value={isi}
-              onChange={(event) => setIsi(event.target.value)}
-              width="850px"
-              placeholder="Here is a sample placeholder"
-              size="sm"
-            />
-          </Box>
-          <Box margin={8}>
             <FormLabel>Tambah lampiran</FormLabel>
             <Input type="file" width="850px" onChange={onFileChange} />
-          </Box>
-          <Box margin={8}>
-            <FormLabel htmlFor="Source">Source</FormLabel>
-            <Input
-              id="source"
-              type="text"
-              htmlSize={100}
-              width="auto"
-              value={source}
-              onChange={(event) => setSource(event.target.value)}
-            />
-          </Box>
-          <Box margin={8}>
-            <FormLabel htmlFor="tag">Tag</FormLabel>
-            <Input
-              id="tag"
-              type="text"
-              htmlSize={100}
-              width="auto"
-              value={tag}
-              onChange={(event) => setTag(event.target.value)}
-            />
-          </Box>
-          <Button colorScheme="blue" onClick={insert} marginLeft={8}>
-            Buat Artikel
-          </Button>
-        </FormControl>
+            <div className="space-y-2">
+              <FormControl isInvalid={errors.source}>
+                <FormLabel htmlFor="name">Source</FormLabel>
+                <Input
+                  id="source"
+                  bg="white"
+                  type="text"
+                  {...register("source", {
+                    required: "This is required",
+                  })}
+                />
+                <FormErrorMessage>
+                  {errors.source && errors.source.message}
+                </FormErrorMessage>
+              </FormControl>
+            </div>
+            <div className="space-y-2">
+              <FormLabel htmlFor="tag">Tag</FormLabel>
+              <Input
+                id="tag"
+                type="text"
+                htmlSize={100}
+                width="auto"
+                value={tag}
+                onChange={(event) => setTag(event.target.value)}
+              />
+            </div>
+            <Button
+              mt={4}
+              colorScheme="blue"
+              isLoading={isSubmitting}
+              type="submit"
+            >
+              Buat Artikel
+            </Button>
+          </div>
+        </form>
       </DashboardPageContent>
     </DashboardPage>
   );
 };
-
 
 export default withAuthUser({
   whenUnauthedAfterInit: AuthAction.REDIRECT_TO_LOGIN,
