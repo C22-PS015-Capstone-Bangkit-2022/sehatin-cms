@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Box, Text, Badge, Image, Grid, Stack, Button, useDisclosure } from "@chakra-ui/react";
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import {
+  Box,
+  Text,
+  Badge,
+  Image,
+  Grid,
+  Stack,
+  Button,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { DeleteIcon, EditIcon, AddIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
 import { base_url } from "@/utils/const";
-import AlertDialogDelete from "../../components/alert-dialog/alertDialog"
+import AlertDialogDelete from "../../components/alert-dialog/alertDialog";
 
 const ListArticle = () => {
   const [dataArticle, setDataArticle] = useState([]);
@@ -39,26 +48,37 @@ const ListArticle = () => {
         id_artikel: id_artikel,
       },
     });
-  }
+  };
 
   let deleteArticle = (id_artikel) => {
-    axios.delete(`${base_url}v1/articles/delete/${id_artikel}`)
-    .then((res) => {
-      console.log(res);
-      window.location.reload()
-    })
-    .catch((err) => {
-      alert('error');
-      console.log(err);
-    })
-  } 
+    axios
+      .delete(`${base_url}v1/articles/delete/${id_artikel}`)
+      .then((res) => {
+        console.log(res);
+        window.location.reload();
+      })
+      .catch((err) => {
+        alert("error");
+        console.log(err);
+      });
+  };
 
   return (
     <div>
       <Text fontSize="5xl" marginLeft={8} marginTop={5}>
         List Article
       </Text>
-      <Grid templateColumns="repeat(4, 1fr)" gap={10} margin="50px">
+      <Button
+        colorScheme="teal"
+        leftIcon={<AddIcon />}
+        variant="solid"
+        marginLeft="50px"
+        marginTop={5}
+        onClick={() => router.push("/article/addArticle")}
+      >
+        Tambah Artikel
+      </Button>
+      <Grid templateColumns="repeat(4, 1fr)" gap={10} margin="30px 50px">
         {dataArticle.map((v) => {
           return (
             // eslint-disable-next-line react/jsx-key
@@ -76,7 +96,11 @@ const ListArticle = () => {
                 height="300"
                 margin="auto"
               />
-              <Box p="6" cursor="pointer" onClick={() => selectArticle(v.id_artikel)}>
+              <Box
+                p="6"
+                cursor="pointer"
+                onClick={() => selectArticle(v.id_artikel)}
+              >
                 <Box display="flex" alignItems="baseline">
                   <Stack direction="row">
                     {v &&
@@ -121,13 +145,17 @@ const ListArticle = () => {
                 position="relative"
               >
                 <Button>
-                  <DeleteIcon color="blue.300" onClick={onOpen}/>
+                  <DeleteIcon color="blue.300" onClick={onOpen} />
                 </Button>
                 <Button onClick={() => editArticle(v.id_artikel)}>
                   <EditIcon color="blue.300" />
                 </Button>
               </Stack>
-              <AlertDialogDelete isOpen={isOpen} onClose={onClose} onClick={() => deleteArticle(v.id_artikel)} />
+              <AlertDialogDelete
+                isOpen={isOpen}
+                onClose={onClose}
+                onClick={() => deleteArticle(v.id_artikel)}
+              />
             </Box>
           );
         })}

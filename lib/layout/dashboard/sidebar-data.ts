@@ -19,4 +19,9 @@ export const sidebarMenu: SidebarMenuItem[] = [
     href: "/test/api",
     icon: ShieldCheckIcon,
   },
+  {
+    name: "Artikel Test",
+    href: "/article/getArticle",
+    icon: ShieldCheckIcon,
+  },
 ];
