@@ -27,7 +27,7 @@ export function DashboardNav({ user }: Props) {
     },
   ];
   return (
-    <div className="relative z-10 flex-shrink-0 flex h-16 bg-white shadow">
+    <div className="relative z-8 flex-shrink-0 flex h-16 bg-white shadow">
       <button
         className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-silacak-500 md:hidden"
         onClick={() => setSidebarOpen(true)}
