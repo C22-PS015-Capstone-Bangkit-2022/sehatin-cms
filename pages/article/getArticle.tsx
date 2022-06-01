@@ -80,10 +80,10 @@ const ListArticle = () => {
           <div className="space-y-2">
             <p className="text-sm">Artikel</p>
             <h1 className="text-lg font-semibold leading-[38px] lg:text-xl lg:leading-[38px]">
-              Buat Baru
+              Daftar artikel
             </h1>
           </div>
-          <div className="flex-none w-full mt-4 space-y-2 lg:max-w-xs lg:mt-0 lg:ml-4">
+          <div className="flex-none mt-4 space-y-2 lg:max-w-xs lg:mt-0 lg:ml-4">
             <Button
               colorScheme="teal"
               leftIcon={<AddIcon />}
@@ -97,96 +97,96 @@ const ListArticle = () => {
         </div>
       </DashboardHeader>
       <DashboardPageContent className="z-50">
-        <Grid templateColumns="repeat(4, 1fr)" gap={10}>
-          {dataArticle.length === 0 ? (
+        {dataArticle.length === 0 ? (
+          <ul className="divide-y divide-gray-200">
             <FetchLoading />
-          ) : (
-            dataArticle.map((v) => {
-              return (
-                // eslint-disable-next-line react/jsx-key
+          </ul>
+        ) : (
+          <Grid templateColumns="repeat(4, 1fr)" gap={10}>
+            {dataArticle.map((v) => (
+              // eslint-disable-next-line react/jsx-key
+              <Box
+                maxW="sm"
+                height="570px"
+                borderWidth="1px"
+                borderRadius="lg"
+                overflow="hidden"
+              >
+                <Image
+                  src={v.thumbnail_image}
+                  alt="foto artikel"
+                  objectFit="cover"
+                  height="300"
+                  margin="auto"
+                />
                 <Box
-                  maxW="sm"
-                  height="570px"
-                  borderWidth="1px"
-                  borderRadius="lg"
-                  overflow="hidden"
+                  p="6"
+                  cursor="pointer"
+                  onClick={() => selectArticle(v.id_artikel)}
                 >
-                  <Image
-                    src={v.thumbnail_image}
-                    alt="foto artikel"
-                    objectFit="cover"
-                    height="300"
-                    margin="auto"
-                  />
+                  <Box display="flex" alignItems="baseline">
+                    <Stack direction="row">
+                      {v &&
+                        v.tag.map((i) => {
+                          return (
+                            // eslint-disable-next-line react/jsx-key
+                            <Badge
+                              borderRadius="full"
+                              px="2"
+                              colorScheme="teal"
+                            >
+                              {i}
+                              {/* {v.tag.split("[]")} */}
+                            </Badge>
+                          );
+                        })}
+                    </Stack>
+                  </Box>
                   <Box
-                    p="6"
-                    cursor="pointer"
-                    onClick={() => selectArticle(v.id_artikel)}
+                    mt="1"
+                    fontWeight="semibold"
+                    as="h4"
+                    lineHeight="tight"
+                    noOfLines={1}
                   >
-                    <Box display="flex" alignItems="baseline">
-                      <Stack direction="row">
-                        {v &&
-                          v.tag.map((i) => {
-                            return (
-                              // eslint-disable-next-line react/jsx-key
-                              <Badge
-                                borderRadius="full"
-                                px="2"
-                                colorScheme="teal"
-                              >
-                                {i}
-                                {/* {v.tag.split("[]")} */}
-                              </Badge>
-                            );
-                          })}
-                      </Stack>
-                    </Box>
+                    {v.judul}
+                  </Box>
+                  <Box noOfLines={3}>{v.isi_artikel}</Box>
+                  <Box display="flex" mt="2" alignItems="center">
+                    {/* <Text>Source : </Text> */}
                     <Box
-                      mt="1"
-                      fontWeight="semibold"
-                      as="h4"
-                      lineHeight="tight"
-                      noOfLines={1}
+                      as="span"
+                      ml="2"
+                      color="gray.600"
+                      fontSize="sm"
+                      noOfLines={2}
                     >
-                      {v.judul}
-                    </Box>
-                    <Box noOfLines={3}>{v.isi_artikel}</Box>
-                    <Box display="flex" mt="2" alignItems="center">
-                      {/* <Text>Source : </Text> */}
-                      <Box
-                        as="span"
-                        ml="2"
-                        color="gray.600"
-                        fontSize="sm"
-                        noOfLines={2}
-                      >
-                        {v.source_link}
-                      </Box>
+                      {v.source_link}
                     </Box>
                   </Box>
-                  <Stack
-                    direction="row"
-                    float="right"
-                    marginRight="8px"
-                    position="relative"
-                  >
-                    <Button>
-                      <DeleteIcon color="blue.300" onClick={onOpen} />
-                    </Button>
-                    <Button onClick={() => editArticle(v.id_artikel)}>
-                      <EditIcon color="blue.300" />
-                    </Button>
-                  </Stack>
-                  <AlertDialogDelete
-                    isOpen={isOpen}
-                    onClose={onClose}
-                    onClick={() => deleteArticle(v.id_artikel)}
-                  />
                 </Box>
-              );
-            })
-          )}
-        </Grid>
+                <Stack
+                  direction="row"
+                  float="right"
+                  marginRight="8px"
+                  position="relative"
+                >
+                  <Button>
+                    <DeleteIcon color="blue.300" onClick={onOpen} />
+                  </Button>
+                  <Button onClick={() => editArticle(v.id_artikel)}>
+                    <EditIcon color="blue.300" />
+                  </Button>
+                </Stack>
+                <AlertDialogDelete
+                  isOpen={isOpen}
+                  onClose={onClose}
+                  onClick={() => deleteArticle(v.id_artikel)}
+                />
+              </Box>
+            ))}
+          </Grid>
+        )}
       </DashboardPageContent>
     </DashboardPage>
   );
