@@ -14,6 +14,8 @@ import {
   FormErrorMessage,
   useToast,
   InputGroup,
+  CircularProgress,
+  useDisclosure,
 } from "@chakra-ui/react";
 import FormData from "form-data";
 import { useRouter } from "next/router";
@@ -33,6 +35,16 @@ import ReactDOMServer from "react-dom/server";
 import Loading from "@/components/Loading";
 import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+} from "@chakra-ui/react";
+import { InformationCircleIcon } from "@heroicons/react/solid";
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
   loading: () => <FetchLoading />,
@@ -40,12 +52,13 @@ const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
 const Loader = () => <Loading />;
 
 const Form = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [judul, setJudul] = useState("");
   const [isi, setIsi] = useState("");
   const [file, setFile] = useState<any>([]);
   const [source, setSource] = useState("");
   const [tag, setTag] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setUploading] = useState(false);
   const AuthUser = useAuthUser();
   const toast = useToast();
   const {
@@ -56,21 +69,42 @@ const Form = () => {
     handleSubmit,
   } = useForm();
 
+  const tags = [
+    { value: "penyakit", label: "Penyakit" },
+    { value: "kanker", label: "Kanker" },
+    { value: "stroke", label: "Stroke" },
+    { value: "tips", label: "Tips" },
+    { value: "diabetes", label: "Diabetes" },
+  ];
   const onFileChange = (event) => {
     const formData = new FormData();
-    setIsLoading(true);
+    setUploading(true);
     const url = `${base_url}v1/upload`; //kalo pake heroku malah error : file is required
     formData.append("file", event.target.files[0]);
     axios
       .post(url, formData)
       .then((res) => {
-        console.log(res.data);
         setFile(res.data);
-        setIsLoading(false);
+        setUploading(false);
+        toast({
+          title: "Gambar Thumbnail Terunggah",
+          description: "Gambar berhasil diunggah",
+          status: "success",
+          duration: 4000,
+          isClosable: true,
+          position: "top-right",
+        });
       })
       .catch((err) => {
-        setIsLoading(false);
-        console.log(err);
+        setUploading(false);
+        toast({
+          title: "Gambar Gagal Terunggah",
+          description: err,
+          status: "error",
+          duration: 4000,
+          isClosable: true,
+          position: "top-right",
+        });
       });
   };
 
@@ -85,7 +119,7 @@ const Form = () => {
         tag: tag.includes(",") ? tag.split(",") : Array(tag),
       })
       .then((res) => {
-        console.log(res);
+        //console.log(res);
         router.push("/article/getArticle");
       })
       .catch((err) => {
@@ -135,7 +169,40 @@ const Form = () => {
     };
   }, []);
 
-  const onSubmit = async (data) => {};
+  const onSubmit = async (data) => {
+    if (!file.image) {
+      toast({
+        title: "Foto Thumbnail belum diunggah",
+        description: "Unggah gambar thumbnail terlebih dahulu",
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } else {
+      axios
+        .post(`https://sehatin-api.herokuapp.com/v1/articles/new`, {
+          judul: data.title,
+          isi_artikel: data.article,
+          thumbnail_image: file.image,
+          source_link: data.source,
+          tag: data.tag.map((item) => item.value),
+        })
+        .then((res) => {
+          router.push("/article/getArticle");
+        })
+        .catch((err) => {
+          toast({
+            title: "Artikel gagal ditambahkan",
+            description: err,
+            status: "error",
+            duration: 4000,
+            isClosable: true,
+            position: "top-right",
+          });
+        });
+    }
+  };
   return (
     <DashboardPage user={AuthUser}>
       <DashboardHeader>
@@ -177,8 +244,41 @@ const Form = () => {
                 <SimpleMDE {...field} options={customRendererOptions} />
               )}
             />
-            <FormLabel>Tambah lampiran</FormLabel>
-            <Input type="file" width="850px" onChange={onFileChange} />
+            {errors.article?.type === "required" && (
+              <div className="text-red-500 text-sm my-2">
+                <div className="flex">
+                  <div className="mr-1">
+                    <InformationCircleIcon className="w-5 h-5" />
+                  </div>
+                  <span>
+                    <strong>Isi artikel</strong> wajib diisi!
+                  </span>
+                </div>
+              </div>
+            )}
+            <div className="space-y-2">
+              <FormLabel>Foto Thumbnail</FormLabel>
+              <Input type="file" width="850px" onChange={onFileChange} />
+              {file.image && (
+                <img
+                  src={file.image}
+                  alt="thumbnail"
+                  className="w-full object-cover"
+                />
+              )}
+              {isUploading && (
+                <div className="flex items-center">
+                  <CircularProgress
+                    isIndeterminate
+                    color="green.300"
+                    size="30px"
+                  />
+                  <p className="mx-2 font-semibold">
+                    Sedang mengunggah gambar...
+                  </p>
+                </div>
+              )}
+            </div>
             <div className="space-y-2">
               <FormControl isInvalid={errors.source}>
                 <FormLabel htmlFor="name">Source</FormLabel>
@@ -197,13 +297,21 @@ const Form = () => {
             </div>
             <div className="space-y-2">
               <FormLabel htmlFor="tag">Tag</FormLabel>
-              <Input
-                id="tag"
-                type="text"
-                htmlSize={100}
-                width="auto"
-                value={tag}
-                onChange={(event) => setTag(event.target.value)}
+              <Controller
+                name="tag"
+                control={control}
+                rules={{ required: true }}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    noOptionsMessage={() => "Tag tidak tersedia"}
+                    placeholder={"Pilih Tag"}
+                    options={tags}
+                    isMulti
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                  />
+                )}
               />
             </div>
             <Button
@@ -217,6 +325,21 @@ const Form = () => {
           </div>
         </form>
       </DashboardPageContent>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Artikel</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>Artikel berhasil ditambahkan</ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={onClose}>
+              Tutup
+            </Button>
+            <Button variant="ghost">Secondary Action</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </DashboardPage>
   );
 };
