@@ -7,6 +7,8 @@ import { useRouter } from "next/router";
 import { Fragment, useEffect, useRef } from "react";
 import { useDashboardStore } from "~/lib/layout/dashboard/dashboard-store";
 import { sidebarMenu } from "~/lib/layout/dashboard/sidebar-data";
+import logo from "@/public/icons/sehatin-logo.png";
+import * as React from "react";
 
 export function DashboardSidebar() {
   const router = useRouter();
@@ -78,10 +80,10 @@ export function DashboardSidebar() {
               </Transition.Child>
               <div className="flex-shrink-0 flex items-center px-4 text-white">
                 <Image
-                  alt="Kementerian Kesehatan Republik Indonesia"
+                  alt="SainsIn Education"
                   className="h-8 w-auto"
                   height={32}
-                  src="/images/kemenkes-app-icon@2x.png"
+                  src={logo}
                   width={32}
                 />
                 <h1 className="ml-4 text-xl font-semibold">SehatIn CMS</h1>
@@ -135,9 +137,10 @@ export function DashboardSidebar() {
           <div className="flex flex-col h-0 flex-1">
             <div className="flex items-center h-16 flex-shrink-0 px-4 bg-gray-900 text-white">
               <Image
-                alt="Kementerian Kesehatan Republik Indonesia"
+                alt="SainsIn Education"
+                className="h-8 w-auto"
                 height={32}
-                src="/images/kemenkes-app-icon@2x.png"
+                src={logo}
                 width={32}
               />
               <h1 className="ml-4 text-xl font-semibold">SehatIn CMS</h1>
