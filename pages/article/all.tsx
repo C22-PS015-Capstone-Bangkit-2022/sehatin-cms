@@ -15,7 +15,7 @@ import {
 import { DeleteIcon, EditIcon, AddIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
 import { base_url } from "@/utils/const";
-import AlertDialogDelete from "../../components/alert-dialog/alertDialog";
+import AlertDialogDelete from "@/components/alert-dialog/alertDialog";
 import Loading from "@/components/Loading";
 import { AuthAction, useAuthUser, withAuthUser } from "next-firebase-auth";
 import { DashboardHeader } from "@/components/layout/header/dashboard-header";
@@ -29,7 +29,7 @@ const Loader = () => <Loading />;
 
 const ListArticle = () => {
   const AuthUser = useAuthUser();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  // const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const { id } = router.query;
   const toast = useToast();
@@ -189,14 +189,9 @@ const ListArticle = () => {
                   marginBottom="15px"
                   marginRight="8px"
                 >
-                  <Button>
-                    <IconButton
-                      color="blue.300"
-                      onClick={onOpen}
-                      icon={<DeleteIcon />}
-                      aria-label="delete-article"
-                    />
-                  </Button>
+                  <AlertDialogDelete
+                    onClick={() => deleteArticle(v.id_artikel)}
+                  />
                   <Button onClick={() => editArticle(v.id_artikel)}>
                     <IconButton
                       color="blue.300"
@@ -205,11 +200,6 @@ const ListArticle = () => {
                     />
                   </Button>
                 </Stack>
-                <AlertDialogDelete
-                  isOpen={isOpen}
-                  onClose={onClose}
-                  onClick={() => deleteArticle(v.id_artikel)}
-                />
               </Box>
             ))}
             {/* <AlertDialogDelete
