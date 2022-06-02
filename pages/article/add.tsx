@@ -111,7 +111,7 @@ const Form = () => {
   let router = useRouter();
   let insert = () => {
     axios
-      .post(`https://sehatin-api.herokuapp.com/v1/articles/new`, {
+      .post(`https://${base_url}v1/articles/new`, {
         judul: judul,
         isi_artikel: isi,
         thumbnail_image: file.image,
@@ -120,7 +120,7 @@ const Form = () => {
       })
       .then((res) => {
         //console.log(res);
-        router.push("/article/getArticle");
+        router.push("/article/all");
       })
       .catch((err) => {
         console.log(err);
