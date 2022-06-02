@@ -22,13 +22,29 @@ import {
   DashboardPageContent,
 } from "@/components/layout/dashboard";
 import FetchLoading from "@/components/loading/FetchLoading";
+import { useQuery } from "react-query";
 const Loader = () => <Loading />;
 
 const ListArticle = () => {
   const AuthUser = useAuthUser();
   const [dataArticle, setDataArticle] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const router = useRouter();
+  const { id } = router.query;
 
+  const articles = useQuery(
+    ["question"],
+    () =>
+      axios
+        .get(`${base_url}v1/articles`)
+        .then((res) => {
+          setDataArticle(res.data.articles);
+        })
+        .catch((err) => {
+          console.log(err);
+        }),
+    { refetchOnWindowFocus: false, enabled: !!id }
+  );
   useEffect(() => {
     axios
       .get(`${base_url}v1/articles`)
@@ -40,7 +56,6 @@ const ListArticle = () => {
       });
   }, []);
 
-  let router = useRouter();
   let selectArticle = (id_artikel) => {
     router.push({
       pathname: "/article/[id_artikel]",
@@ -89,7 +104,7 @@ const ListArticle = () => {
               leftIcon={<AddIcon />}
               variant="solid"
               marginBottom="10px"
-              onClick={() => router.push("/article/addArticle")}
+              onClick={() => router.push("/article/add")}
             >
               Tambah Artikel
             </Button>
@@ -122,6 +137,7 @@ const ListArticle = () => {
                 <Box
                   p="6"
                   cursor="pointer"
+                  bg="white"
                   onClick={() => selectArticle(v.id_artikel)}
                 >
                   <Box display="flex" alignItems="baseline">
