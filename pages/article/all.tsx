@@ -9,7 +9,8 @@ import {
   Stack,
   Button,
   useDisclosure,
-  IconButton
+  IconButton,
+  useToast,
 } from "@chakra-ui/react";
 import { DeleteIcon, EditIcon, AddIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
@@ -28,40 +29,39 @@ const Loader = () => <Loading />;
 
 const ListArticle = () => {
   const AuthUser = useAuthUser();
-  const [dataArticle, setDataArticle] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const { id } = router.query;
-
+  const toast = useToast();
   const articles = useQuery(
-    ["question"],
+    ["articles"],
     () =>
       axios
         .get(`${base_url}v1/articles`)
         .then((res) => {
-          setDataArticle(res.data.articles);
+          console.log(res.data);
+          return res.data.articles;
         })
         .catch((err) => {
+          toast({
+            title: "Gagal mendapatkan data artikel",
+            description: err,
+            status: "error",
+            duration: 4000,
+            isClosable: true,
+            position: "top-right",
+          });
           console.log(err);
+          return [];
         }),
-    { refetchOnWindowFocus: false, enabled: !!id }
+    { refetchOnWindowFocus: false }
   );
-  useEffect(() => {
-    axios
-      .get(`${base_url}v1/articles`)
-      .then((res) => {
-        setDataArticle(res.data.articles);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
 
   let selectArticle = (id_artikel) => {
     router.push({
       pathname: "/article/[id]",
       query: {
-        id_artikel: id_artikel,
+        id: id_artikel,
       },
     });
     // console.log(id_artikel);
@@ -89,6 +89,7 @@ const ListArticle = () => {
       });
   };
 
+  console.log(articles.data);
   return (
     <DashboardPage user={AuthUser}>
       <DashboardHeader>
@@ -113,13 +114,13 @@ const ListArticle = () => {
         </div>
       </DashboardHeader>
       <DashboardPageContent className="z-50">
-        {dataArticle.length === 0 ? (
+        {articles.data?.length === 0 ? (
           <ul className="divide-y divide-gray-200">
             <FetchLoading />
           </ul>
         ) : (
           <Grid templateColumns="repeat(3, 1fr)" gap={20}>
-            {dataArticle.map((v) => (
+            {articles.data?.map((v) => (
               // eslint-disable-next-line react/jsx-key
               <Box
                 maxW="sm"
@@ -189,10 +190,19 @@ const ListArticle = () => {
                   marginRight="8px"
                 >
                   <Button>
-                    <IconButton color="blue.300" onClick={onOpen} icon={<DeleteIcon />} aria-label="delete-article"/>
+                    <IconButton
+                      color="blue.300"
+                      onClick={onOpen}
+                      icon={<DeleteIcon />}
+                      aria-label="delete-article"
+                    />
                   </Button>
                   <Button onClick={() => editArticle(v.id_artikel)}>
-                    <IconButton color="blue.300" icon={<EditIcon/>} aria-label="edit-article"/>
+                    <IconButton
+                      color="blue.300"
+                      icon={<EditIcon />}
+                      aria-label="edit-article"
+                    />
                   </Button>
                 </Stack>
                 <AlertDialogDelete
