@@ -9,6 +9,7 @@ import {
   Stack,
   Button,
   useDisclosure,
+  IconButton
 } from "@chakra-ui/react";
 import { DeleteIcon, EditIcon, AddIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
@@ -117,12 +118,12 @@ const ListArticle = () => {
             <FetchLoading />
           </ul>
         ) : (
-          <Grid templateColumns="repeat(4, 1fr)" gap={10}>
+          <Grid templateColumns="repeat(3, 1fr)" gap={20}>
             {dataArticle.map((v) => (
               // eslint-disable-next-line react/jsx-key
               <Box
                 maxW="sm"
-                height="570px"
+                height="550px"
                 borderWidth="1px"
                 borderRadius="lg"
                 overflow="hidden"
@@ -135,7 +136,7 @@ const ListArticle = () => {
                   margin="auto"
                 />
                 <Box
-                  p="6"
+                  p="3"
                   cursor="pointer"
                   bg="white"
                   onClick={() => selectArticle(v.id_artikel)}
@@ -184,14 +185,14 @@ const ListArticle = () => {
                 <Stack
                   direction="row"
                   float="right"
+                  marginBottom="15px"
                   marginRight="8px"
-                  position="relative"
                 >
                   <Button>
-                    <DeleteIcon color="blue.300" onClick={onOpen} />
+                    <IconButton color="blue.300" onClick={onOpen} icon={<DeleteIcon />} aria-label="delete-article"/>
                   </Button>
                   <Button onClick={() => editArticle(v.id_artikel)}>
-                    <EditIcon color="blue.300" />
+                    <IconButton color="blue.300" icon={<EditIcon/>} aria-label="edit-article"/>
                   </Button>
                 </Stack>
                 <AlertDialogDelete
@@ -201,6 +202,11 @@ const ListArticle = () => {
                 />
               </Box>
             ))}
+            {/* <AlertDialogDelete
+                  isOpen={isOpen}
+                  onClose={onClose}
+                  //onClick={() => deleteArticle(v.id_artikel)}
+                /> */}
           </Grid>
         )}
       </DashboardPageContent>

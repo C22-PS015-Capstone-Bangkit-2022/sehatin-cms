@@ -16,7 +16,7 @@ import { base_url } from "@/utils/const";
 import AlertDialogDelete from "@/components/alert-dialog/alertDialog";
 import { AuthAction, useAuthUser, withAuthUser } from "next-firebase-auth";
 import Loading from "@/components/Loading";
-import { DashboardHeader } from "@/components/layout/header/dashboard-header";
+// import { DashboardHeader } from "@/components/layout/header/dashboard-header";
 import {
   DashboardPage,
   DashboardPageContent,
