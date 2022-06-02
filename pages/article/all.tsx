@@ -127,6 +127,7 @@ const ListArticle = () => {
                 borderWidth="1px"
                 borderRadius="lg"
                 overflow="hidden"
+                bg="white"
               >
                 <Image
                   src={v.thumbnail_image}
@@ -138,7 +139,6 @@ const ListArticle = () => {
                 <Box
                   p="3"
                   cursor="pointer"
-                  bg="white"
                   onClick={() => selectArticle(v.id_artikel)}
                 >
                   <Box display="flex" alignItems="baseline">
