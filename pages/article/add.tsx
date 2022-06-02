@@ -181,7 +181,7 @@ const Form = () => {
       });
     } else {
       axios
-        .post(`https://sehatin-api.herokuapp.com/v1/articles/new`, {
+        .post(`https://${base_url}v1/articles/new`, {
           judul: data.title,
           isi_artikel: data.article,
           thumbnail_image: file.image,
@@ -189,7 +189,7 @@ const Form = () => {
           tag: data.tag.map((item) => item.value),
         })
         .then((res) => {
-          router.push("/article/getArticle");
+          router.push("/article/all");
         })
         .catch((err) => {
           toast({
