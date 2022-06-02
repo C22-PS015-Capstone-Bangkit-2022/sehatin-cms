@@ -57,7 +57,7 @@ const GetArticleById = () => {
       .delete(`${base_url}v1/articles/delete/${id_artikel}`)
       .then((res) => {
         console.log(res);
-        router.push("/article/getArticle");
+        router.push("/article/all");
       })
       .catch((err) => {
         alert("error");
@@ -130,7 +130,7 @@ const GetArticleById = () => {
 
                 <Box marginBottom="30px">
                   Source : &nbsp;
-                  <Link color="teal.500" href="#">
+                  <Link color="teal.500" href={v.source_link} target="_blank">
                     {v.source_link}
                   </Link>
                 </Box>
