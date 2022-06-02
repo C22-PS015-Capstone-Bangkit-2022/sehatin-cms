@@ -206,7 +206,7 @@ const Form = () => {
           tag: data.tag.map((item) => item.value),
         })
         .then((res) => {
-          router.push("/article/getArticle");
+          router.push("/article/all");
         })
         .catch((err) => {
           toast({
