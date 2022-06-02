@@ -8,22 +8,30 @@ import {
   Button,
   Spacer,
   Link,
-  useDisclosure
+  useDisclosure,
+  Tag,
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { base_url } from "@/utils/const";
 import AlertDialogDelete from "@/components/alert-dialog/alertDialog";
-import { AuthAction, withAuthUser } from "next-firebase-auth";
+import { AuthAction, useAuthUser, withAuthUser } from "next-firebase-auth";
 import Loading from "@/components/Loading";
+import { DashboardHeader } from "@/components/layout/header/dashboard-header";
+import {
+  DashboardPage,
+  DashboardPageContent,
+} from "@/components/layout/dashboard";
+import ReactMarkdown from "react-markdown";
+import raw from "rehype-raw";
 const Loader = () => <Loading />;
 
 const GetArticleById = () => {
+  const AuthUser = useAuthUser();
   const [dataArticle, setDataArticle] = useState([]);
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const { id_artikel } = router.query;
 
-  console.log(id_artikel);
   useEffect(() => {
     axios
       .get(`${base_url}v1/articles/${id_artikel}`)
@@ -42,88 +50,98 @@ const GetArticleById = () => {
         id_artikel: id_artikel,
       },
     });
-  }
+  };
 
   let deleteArticle = (id_artikel) => {
-    axios.delete(`${base_url}v1/articles/delete/${id_artikel}`)
-    .then((res) => {
-      console.log(res);
-      router.push("/article/getArticle")
-    })
-    .catch((err) => {
-      alert('error');
-      console.log(err);
-    })
-  }
+    axios
+      .delete(`${base_url}v1/articles/delete/${id_artikel}`)
+      .then((res) => {
+        console.log(res);
+        router.push("/article/getArticle");
+      })
+      .catch((err) => {
+        alert("error");
+        console.log(err);
+      });
+  };
 
   return (
-    <Box
-      //   maxW="lg"
-      width="1000px"
-      //   borderWidth="1px"
-      //   borderRadius="lg"
-      overflow="hidden"
-      m="auto"
-      marginTop="30px"
-    >
-      {dataArticle.map((v) => {
-        return (
-          // eslint-disable-next-line react/jsx-key
-          <div>
-            <Image
-              src={v.thumbnail_image}
-              alt="foto artikel"
-              objectFit="cover"
-              boxSize="500px"
-              margin="auto"
-            />
-            <Box>
-              <Stack direction="row">
-                <Box>
-                  <Text fontSize="5xl">{v.judul} </Text>
-                </Box>
-                <Spacer />
+    <DashboardPage user={AuthUser}>
+      <DashboardPageContent className="z-50 bg-white">
+        {dataArticle.map((v) => {
+          return (
+            // eslint-disable-next-line react/jsx-key
+            <div>
+              <Image
+                src={v.thumbnail_image}
+                alt="foto artikel"
+                objectFit="cover"
+                boxSize="500px"
+                margin="auto"
+              />
+              <Box>
                 <Stack direction="row">
                   <Box>
-                    <Button colorScheme="teal" size="sm" marginTop={5} onClick={() => selectArticle(v.id_artikel)}>
-                      edit
-                    </Button>
+                    <Text fontSize="5xl">{v.judul} </Text>
+                    {v.tag.map((i) => {
+                      return (
+                        // eslint-disable-next-line react/jsx-key
+                        <Tag>{i}</Tag>
+                      );
+                    })}
                   </Box>
-                  <Box>
-                    <Button colorScheme="teal" size="sm" marginTop={5} onClick={onOpen}>
-                      delete
-                    </Button>
-                  </Box>
+                  <Spacer />
+                  <Stack direction="row">
+                    <Box>
+                      <Button
+                        colorScheme="teal"
+                        size="sm"
+                        marginTop={5}
+                        onClick={() => selectArticle(v.id_artikel)}
+                      >
+                        edit
+                      </Button>
+                    </Box>
+                    <Box>
+                      <Button
+                        colorScheme="teal"
+                        size="sm"
+                        marginTop={5}
+                        onClick={onOpen}
+                      >
+                        delete
+                      </Button>
+                    </Box>
+                  </Stack>
                 </Stack>
-              </Stack>
-              <AlertDialogDelete isOpen={isOpen} onClose={onClose} onClick={() => deleteArticle(v.id_artikel)} />
-              <Box>
-                <Text lineHeight={8} textAlign="justify">
-                  {v.isi_artikel}
-                </Text>
+                <AlertDialogDelete
+                  isOpen={isOpen}
+                  onClose={onClose}
+                  onClick={() => deleteArticle(v.id_artikel)}
+                />
+                <Box>
+                  <article className="prose lg:prose-xl mx-auto">
+                    <ReactMarkdown
+                      children={v.isi_artikel}
+                      rehypePlugins={[raw]}
+                    />
+                  </article>
+                </Box>
+
+                <Box marginBottom="30px">
+                  Source : &nbsp;
+                  <Link color="teal.500" href="#">
+                    {v.source_link}
+                  </Link>
+                </Box>
               </Box>
-              <Box>
-                {v.tag.map((i) => {
-                  return (
-                    // eslint-disable-next-line react/jsx-key
-                    <Text color="blue.600">{i}</Text>
-                  );
-                })}
-              </Box>
-              <Box marginBottom="30px">
-                Source : &nbsp;
-                <Link color="teal.500" href="#">
-                  {v.source_link}
-                </Link>
-              </Box>
-            </Box>
-          </div>
-        );
-      })}
-    </Box>
+            </div>
+          );
+        })}
+      </DashboardPageContent>
+    </DashboardPage>
   );
 };
-
 
 export default withAuthUser({
   whenUnauthedAfterInit: AuthAction.REDIRECT_TO_LOGIN,
