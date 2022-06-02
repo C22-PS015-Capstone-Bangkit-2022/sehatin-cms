@@ -9,11 +9,13 @@ import {
   Stack,
   Button,
   useDisclosure,
+  IconButton,
+  useToast,
 } from "@chakra-ui/react";
 import { DeleteIcon, EditIcon, AddIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/router";
 import { base_url } from "@/utils/const";
-import AlertDialogDelete from "../../components/alert-dialog/alertDialog";
+import AlertDialogDelete from "@/components/alert-dialog/alertDialog";
 import Loading from "@/components/Loading";
 import { AuthAction, useAuthUser, withAuthUser } from "next-firebase-auth";
 import { DashboardHeader } from "@/components/layout/header/dashboard-header";
@@ -27,40 +29,39 @@ const Loader = () => <Loading />;
 
 const ListArticle = () => {
   const AuthUser = useAuthUser();
-  const [dataArticle, setDataArticle] = useState([]);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  // const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const { id } = router.query;
-
+  const toast = useToast();
   const articles = useQuery(
-    ["question"],
+    ["articles"],
     () =>
       axios
         .get(`${base_url}v1/articles`)
         .then((res) => {
-          setDataArticle(res.data.articles);
+          console.log(res.data);
+          return res.data.articles;
         })
         .catch((err) => {
+          toast({
+            title: "Gagal mendapatkan data artikel",
+            description: err,
+            status: "error",
+            duration: 4000,
+            isClosable: true,
+            position: "top-right",
+          });
           console.log(err);
+          return [];
         }),
-    { refetchOnWindowFocus: false, enabled: !!id }
+    { refetchOnWindowFocus: false }
   );
-  useEffect(() => {
-    axios
-      .get(`${base_url}v1/articles`)
-      .then((res) => {
-        setDataArticle(res.data.articles);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
 
   let selectArticle = (id_artikel) => {
     router.push({
-      pathname: "/article/[id_artikel]",
+      pathname: "/article/[id]",
       query: {
-        id_artikel: id_artikel,
+        id: id_artikel,
       },
     });
     // console.log(id_artikel);
@@ -88,6 +89,7 @@ const ListArticle = () => {
       });
   };
 
+  console.log(articles.data);
   return (
     <DashboardPage user={AuthUser}>
       <DashboardHeader>
@@ -112,20 +114,17 @@ const ListArticle = () => {
         </div>
       </DashboardHeader>
       <DashboardPageContent className="z-50">
-        {dataArticle.length === 0 ? (
-          <ul className="divide-y divide-gray-200">
-            <FetchLoading />
-          </ul>
-        ) : (
-          <Grid templateColumns="repeat(4, 1fr)" gap={10}>
-            {dataArticle.map((v) => (
+        {articles.isSuccess ? (
+          <Grid templateColumns="repeat(3, 1fr)" gap={20}>
+            {articles.data?.map((v) => (
               // eslint-disable-next-line react/jsx-key
               <Box
                 maxW="sm"
-                height="570px"
+                height="550px"
                 borderWidth="1px"
                 borderRadius="lg"
                 overflow="hidden"
+                bg="white"
               >
                 <Image
                   src={v.thumbnail_image}
@@ -135,9 +134,8 @@ const ListArticle = () => {
                   margin="auto"
                 />
                 <Box
-                  p="6"
+                  p="3"
                   cursor="pointer"
-                  bg="white"
                   onClick={() => selectArticle(v.id_artikel)}
                 >
                   <Box display="flex" alignItems="baseline">
@@ -184,24 +182,32 @@ const ListArticle = () => {
                 <Stack
                   direction="row"
                   float="right"
+                  marginBottom="15px"
                   marginRight="8px"
-                  position="relative"
                 >
-                  <Button>
-                    <DeleteIcon color="blue.300" onClick={onOpen} />
-                  </Button>
+                  <AlertDialogDelete
+                    onClick={() => deleteArticle(v.id_artikel)}
+                  />
                   <Button onClick={() => editArticle(v.id_artikel)}>
-                    <EditIcon color="blue.300" />
+                    <IconButton
+                      color="blue.300"
+                      icon={<EditIcon />}
+                      aria-label="edit-article"
+                    />
                   </Button>
                 </Stack>
-                <AlertDialogDelete
-                  isOpen={isOpen}
-                  onClose={onClose}
-                  onClick={() => deleteArticle(v.id_artikel)}
-                />
               </Box>
             ))}
+            {/* <AlertDialogDelete
+                  isOpen={isOpen}
+                  onClose={onClose}
+                  //onClick={() => deleteArticle(v.id_artikel)}
+                /> */}
           </Grid>
+        ) : (
+          <ul className="divide-y divide-gray-200">
+            <FetchLoading />
+          </ul>
         )}
       </DashboardPageContent>
     </DashboardPage>

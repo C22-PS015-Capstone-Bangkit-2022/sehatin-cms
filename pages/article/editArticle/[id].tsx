@@ -45,6 +45,7 @@ import {
   ModalCloseButton,
 } from "@chakra-ui/react";
 import { InformationCircleIcon } from "@heroicons/react/solid";
+import { useQuery } from "react-query";
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
   loading: () => <FetchLoading />,
@@ -52,9 +53,9 @@ const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
 const Loader = () => <Loading />;
 
 const Form = () => {
+  const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [judul, setJudul] = useState("");
-  const [isi, setIsi] = useState("");
+  const { id } = router.query;
   const [file, setFile] = useState<any>([]);
   const [source, setSource] = useState("");
   const [tag, setTag] = useState("");
@@ -66,6 +67,7 @@ const Form = () => {
     watch,
     formState: { errors, isSubmitting },
     control,
+    setValue,
     handleSubmit,
   } = useForm();
 
@@ -76,6 +78,39 @@ const Form = () => {
     { value: "tips", label: "Tips" },
     { value: "diabetes", label: "Diabetes" },
   ];
+
+  const articleData = useQuery(
+    ["article"],
+    () =>
+      axios
+        .get(`${base_url}v1/articles/${id}`)
+        .then((res) => {
+          const tag = setValue("title", res.data.judul);
+          setValue("article", res.data.isi_artikel);
+          setValue("source", res.data.source_link);
+          setValue(
+            "tag",
+            res.data.tag.map((tag) => ({
+              label: tag,
+              value: tag,
+            }))
+          );
+          setFile({ image: res.data.thumbnail_image });
+          return res.data;
+        })
+        .catch((err) => {
+          toast({
+            title: "Gagal mendapatkan data artikel",
+            description: err,
+            status: "error",
+            duration: 4000,
+            isClosable: true,
+            position: "top-right",
+          });
+          console.log(err);
+        }),
+    { refetchOnWindowFocus: false, enabled: !!id }
+  );
   const onFileChange = (event) => {
     const formData = new FormData();
     setUploading(true);
@@ -108,24 +143,6 @@ const Form = () => {
       });
   };
 
-  let router = useRouter();
-  let insert = () => {
-    axios
-      .post(`https://${base_url}v1/articles/new`, {
-        judul: judul,
-        isi_artikel: isi,
-        thumbnail_image: file.image,
-        source_link: source,
-        tag: tag.includes(",") ? tag.split(",") : Array(tag),
-      })
-      .then((res) => {
-        //console.log(res);
-        router.push("/article/all");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
   function easyMdeUpload(file, onSuccess, onError) {
     const form = new FormData();
     form.append("file", file);
@@ -181,11 +198,11 @@ const Form = () => {
       });
     } else {
       axios
-        .post(`https://${base_url}v1/articles/new`, {
+        .put(`${base_url}v1/articles/edit/${id}`, {
           judul: data.title,
           isi_artikel: data.article,
           thumbnail_image: file.image,
-          source_link: data.source,
+          source: data.source,
           tag: data.tag.map((item) => item.value),
         })
         .then((res) => {
@@ -210,7 +227,7 @@ const Form = () => {
           <div className="space-y-2">
             <p className="text-sm">Artikel</p>
             <h1 className="text-lg font-semibold leading-[38px] lg:text-xl lg:leading-[38px]">
-              Buat Baru
+              Edit Artikel
             </h1>
           </div>
         </div>
@@ -320,7 +337,7 @@ const Form = () => {
               isLoading={isSubmitting}
               type="submit"
             >
-              Buat Artikel
+              Edit Artikel
             </Button>
           </div>
         </form>
