@@ -114,11 +114,7 @@ const ListArticle = () => {
         </div>
       </DashboardHeader>
       <DashboardPageContent className="z-50">
-        {articles.data?.length === 0 ? (
-          <ul className="divide-y divide-gray-200">
-            <FetchLoading />
-          </ul>
-        ) : (
+        {articles.isSuccess ? (
           <Grid templateColumns="repeat(3, 1fr)" gap={20}>
             {articles.data?.map((v) => (
               // eslint-disable-next-line react/jsx-key
@@ -208,6 +204,10 @@ const ListArticle = () => {
                   //onClick={() => deleteArticle(v.id_artikel)}
                 /> */}
           </Grid>
+        ) : (
+          <ul className="divide-y divide-gray-200">
+            <FetchLoading />
+          </ul>
         )}
       </DashboardPageContent>
     </DashboardPage>
