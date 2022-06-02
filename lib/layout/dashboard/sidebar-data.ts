@@ -1,4 +1,8 @@
-import { ShieldCheckIcon, ViewGridIcon } from "@heroicons/react/outline";
+import {
+  ShieldCheckIcon,
+  ViewGridIcon,
+  DocumentTextIcon,
+} from "@heroicons/react/outline";
 
 export interface SidebarMenuItem {
   name: string;
@@ -20,8 +24,8 @@ export const sidebarMenu: SidebarMenuItem[] = [
     icon: ShieldCheckIcon,
   },
   {
-    name: "Artikel Test",
-    href: "/article/getArticle",
-    icon: ShieldCheckIcon,
+    name: "Artikel",
+    href: "/article/all",
+    icon: DocumentTextIcon,
   },
 ];
