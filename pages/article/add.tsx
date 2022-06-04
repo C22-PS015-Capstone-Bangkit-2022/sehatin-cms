@@ -57,10 +57,11 @@ const Form = () => {
   const [isi, setIsi] = useState("");
   const [file, setFile] = useState<any>([]);
   const [source, setSource] = useState("");
-  const [tag, setTag] = useState("");
+  const [tag, setTag] = useState([]);
   const [isUploading, setUploading] = useState(false);
   const AuthUser = useAuthUser();
   const toast = useToast();
+  const router = useRouter();
   const {
     register,
     watch,
@@ -69,13 +70,25 @@ const Form = () => {
     handleSubmit,
   } = useForm();
 
-  const tags = [
-    { value: "penyakit", label: "Penyakit" },
-    { value: "kanker", label: "Kanker" },
-    { value: "stroke", label: "Stroke" },
-    { value: "tips", label: "Tips" },
-    { value: "diabetes", label: "Diabetes" },
-  ];
+  useEffect(() => {
+    axios.get(`${base_url}v1/tag`)
+    .then((res) => setTag(res.data))
+    .catch((error) => console.log(error))
+  }, [])
+
+  // const tags = [
+  //   { value: "penyakit", label: "Penyakit" },
+  //   { value: "kanker", label: "Kanker" },
+  //   { value: "stroke", label: "Stroke" },
+  //   { value: "tips", label: "Tips" },
+  //   { value: "diabetes", label: "Diabetes" },
+  // ];
+
+  const tags = tag.map((v) => ({
+    value : v.nama_tag,
+    label : v.nama_tag
+  }))
+
   const onFileChange = (event) => {
     const formData = new FormData();
     setUploading(true);
@@ -108,24 +121,24 @@ const Form = () => {
       });
   };
 
-  let router = useRouter();
-  let insert = () => {
-    axios
-      .post(`https://${base_url}v1/articles/new`, {
-        judul: judul,
-        isi_artikel: isi,
-        thumbnail_image: file.image,
-        source_link: source,
-        tag: tag.includes(",") ? tag.split(",") : Array(tag),
-      })
-      .then((res) => {
-        //console.log(res);
-        router.push("/article/all");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+  // let insert = () => {
+  //   axios
+  //     .post(`https://${base_url}v1/articles/new`, {
+  //       judul: judul,
+  //       isi_artikel: isi,
+  //       thumbnail_image: file.image,
+  //       source_link: source,
+  //       tag: tag.includes(",") ? tag.split(",") : Array(tag),
+  //     })
+  //     .then((res) => {
+  //       //console.log(res);
+  //       router.push("/article/all");
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
+
   function easyMdeUpload(file, onSuccess, onError) {
     const form = new FormData();
     form.append("file", file);

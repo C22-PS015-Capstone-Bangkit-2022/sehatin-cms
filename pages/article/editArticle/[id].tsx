@@ -58,7 +58,7 @@ const Form = () => {
   const { id } = router.query;
   const [file, setFile] = useState<any>([]);
   const [source, setSource] = useState("");
-  const [tag, setTag] = useState("");
+  const [tag, setTag] = useState([]);
   const [isUploading, setUploading] = useState(false);
   const AuthUser = useAuthUser();
   const toast = useToast();
@@ -71,13 +71,16 @@ const Form = () => {
     handleSubmit,
   } = useForm();
 
-  const tags = [
-    { value: "penyakit", label: "Penyakit" },
-    { value: "kanker", label: "Kanker" },
-    { value: "stroke", label: "Stroke" },
-    { value: "tips", label: "Tips" },
-    { value: "diabetes", label: "Diabetes" },
-  ];
+  useEffect(() => {
+    axios.get(`${base_url}v1/tag`)
+    .then((res) => setTag(res.data))
+    .catch((error) => console.log(error))
+  }, [])
+  
+  const tags = tag.map((v) => ({
+    value : v.nama_tag,
+    label : v.nama_tag
+  }))
 
   const articleData = useQuery(
     ["article"],
