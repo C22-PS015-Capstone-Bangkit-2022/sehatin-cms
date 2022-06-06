@@ -45,7 +45,7 @@ const GetArticleById = () => {
 
   let selectArticle = (id_artikel) => {
     router.push({
-      pathname: "/article/editArticle/[id]",
+      pathname: "/article/editArticle/[id_artikel]",
       query: {
         id_artikel: id_artikel,
       },
