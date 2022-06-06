@@ -12,20 +12,20 @@ import {
 import React, { useState, useEffect } from "react";
 import { DeleteIcon } from "@chakra-ui/icons";
 
-function AlertDialogDelete({ onClick }) {
+function AlertDialogDelete({isOpen, onClose,  onClick }) {
   // const { isOpen, onOpen, onClose } = useDisclosure()
   const cancelRef = React.useRef();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  // const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <>
-      <Button onClick={onOpen}>
+      {/* <Button onClick={onOpen}>
         <IconButton
           color="blue.300"
           icon={<DeleteIcon />}
           aria-label="delete-article"
         />
-      </Button>
+      </Button> */}
       <AlertDialog
         // motionPreset='slideInBottom'
         isOpen={isOpen}

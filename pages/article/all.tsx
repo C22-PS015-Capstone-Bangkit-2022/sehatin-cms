@@ -29,7 +29,7 @@ const Loader = () => <Loading />;
 
 const ListArticle = () => {
   const AuthUser = useAuthUser();
-  // const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
   const { id } = router.query;
   const toast = useToast();
@@ -185,7 +185,16 @@ const ListArticle = () => {
                   marginBottom="15px"
                   marginRight="8px"
                 >
+                  <Button onClick={onOpen}>
+                    <IconButton
+                      color="blue.300"
+                      icon={<DeleteIcon />}
+                      aria-label="delete-article"
+                    />
+                  </Button>
                   <AlertDialogDelete
+                    isOpen={isOpen}
+                    onClose={onClose}
                     onClick={() => deleteArticle(v.id_artikel)}
                   />
                   <Button onClick={() => editArticle(v.id_artikel)}>
