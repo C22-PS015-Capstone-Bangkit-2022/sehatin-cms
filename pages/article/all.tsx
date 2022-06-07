@@ -116,7 +116,8 @@ const ListArticle = () => {
       <DashboardPageContent className="z-50">
         {articles.isSuccess ? (
           <Grid templateColumns="repeat(3, 1fr)" gap={20}>
-            {articles.data?.map((v) => (
+            {articles.data?.map((v) => {
+              return(
               // eslint-disable-next-line react/jsx-key
               <Box
                 maxW="sm"
@@ -192,11 +193,6 @@ const ListArticle = () => {
                       aria-label="delete-article"
                     />
                   </Button>
-                  <AlertDialogDelete
-                    isOpen={isOpen}
-                    onClose={onClose}
-                    onClick={() => deleteArticle(v.id_artikel)}
-                  />
                   <Button onClick={() => editArticle(v.id_artikel)}>
                     <IconButton
                       color="blue.300"
@@ -205,8 +201,14 @@ const ListArticle = () => {
                     />
                   </Button>
                 </Stack>
+                <AlertDialogDelete
+                    isOpen={isOpen}
+                    onClose={onClose}
+                    onClick={() => deleteArticle(v.id_artikel)}
+                  />
               </Box>
-            ))}
+            );
+            })}
             {/* <AlertDialogDelete
                   isOpen={isOpen}
                   onClose={onClose}

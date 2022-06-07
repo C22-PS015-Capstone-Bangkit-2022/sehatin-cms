@@ -194,7 +194,7 @@ const Form = () => {
       });
     } else {
       axios
-        .post(`https://${base_url}v1/articles/new`, {
+        .post(`${base_url}v1/articles/new`, {
           judul: data.title,
           isi_artikel: data.article,
           thumbnail_image: file.image,
